@@ -25,8 +25,8 @@ import { createClient } from '@/lib/supabase/client';
 
 const NAV_ITEMS = [
   { label: 'Dashboard', href: '/host', icon: LayoutDashboard, section: 'Main', badge: null },
-  { label: 'Properties', href: '/host/listings', icon: Home, section: 'Main', badge: '12' },
-  { label: 'Leads & Inquiries', href: '/host/leads', icon: Users, section: 'Main', badge: '7' },
+  { label: 'Properties', href: '/host/listings', icon: Home, section: 'Main' },
+  { label: 'Leads & Inquiries', href: '/host/leads', icon: Users, section: 'Main' },
   { label: 'Analytics', href: '/host/analytics', icon: BarChart3, section: 'Insights', badge: null },
   { label: 'Settings', href: '/host/settings', icon: Settings, section: 'Account', badge: null },
 ];

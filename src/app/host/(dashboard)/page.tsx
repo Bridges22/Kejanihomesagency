@@ -50,7 +50,7 @@ export default function HostDashboardPage() {
     {
       label: 'Active Listings',
       value: metrics?.activeListings?.toString() || '0',
-      change: '+12% from last month',
+      change: '',
       color: 'from-teal-500 to-emerald-500',
       icon: PlusCircle,
       trend: 'up',
@@ -59,7 +59,7 @@ export default function HostDashboardPage() {
     {
       label: 'Total Leads',
       value: metrics?.totalLeads?.toString() || '0',
-      change: '+28% MoM',
+      change: '',
       color: 'from-amber-500 to-orange-500',
       icon: MessageSquare,
       trend: 'up',
@@ -68,7 +68,7 @@ export default function HostDashboardPage() {
     {
       label: 'Listing Views',
       value: metrics?.totalViews?.toString() || '0',
-      change: '+15% WoW',
+      change: '',
       color: 'from-blue-500 to-indigo-500',
       icon: Eye,
       trend: 'up',
@@ -77,7 +77,7 @@ export default function HostDashboardPage() {
     {
       label: 'Engagement Rate',
       value: metrics?.totalViews ? `${((metrics.totalLeads / metrics.totalViews) * 100).toFixed(1)}%` : '0%',
-      change: '+5% WoW',
+      change: '',
       color: 'from-purple-500 to-pink-500',
       icon: Activity,
       trend: 'up',
