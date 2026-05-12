@@ -9,7 +9,9 @@ export default function SearchResultsPage() {
     <>
       <TopNav />
       <main className="min-h-screen bg-gray-50">
-        <SearchResultsContent />
+        <React.Suspense fallback={<div className="p-10 text-center">Loading search results...</div>}>
+          <SearchResultsContent />
+        </React.Suspense>
       </main>
       <Footer />
       <Toaster position="bottom-right" richColors />
