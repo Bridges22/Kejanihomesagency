@@ -111,8 +111,12 @@ export const adminService = {
       .eq('id', id);
 
     if (!error) {
-      const { auditService } = await import('./auditService');
-      await auditService.logEvent('LISTING_STATUS_UPDATE', { listing_id: id, new_status: status });
+      try {
+        const { auditService } = await import('./auditService');
+        await auditService.logEvent('LISTING_STATUS_UPDATE', { listing_id: id, new_status: status });
+      } catch (auditErr) {
+        console.warn('Audit logging failed, but the status update was successful:', auditErr);
+      }
     }
 
     if (error) throw error;

@@ -29,7 +29,7 @@ const DEFAULT_FILTERS: FilterState = {
   city: 'all',
   search: '',
   priceMin: 0,
-  priceMax: 500000,
+  priceMax: 1000000000,
   bedrooms: [],
   verifiedOnly: false,
   amenities: [],

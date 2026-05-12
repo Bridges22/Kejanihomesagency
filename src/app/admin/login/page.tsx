@@ -127,10 +127,20 @@ export default function AdminLoginPage() {
           </button>
         </form>
 
-        <div className="mt-8 text-center">
+        <div className="mt-8 text-center space-y-4">
           <p className="text-[10px] font-black text-slate-600 uppercase tracking-[0.2em]">
             Kejani Homes Infrastructure • v1.0.4-secure
           </p>
+          <button 
+            onClick={async () => {
+              const supabase = createClient();
+              await supabase.auth.signOut();
+              window.location.reload();
+            }}
+            className="text-slate-500 hover:text-white text-[10px] font-bold uppercase tracking-widest transition-colors underline underline-offset-4"
+          >
+            Clear Stale Session
+          </button>
         </div>
       </div>
     </div>

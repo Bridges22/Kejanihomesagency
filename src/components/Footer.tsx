@@ -58,7 +58,7 @@ const supportLinks = [
 const legalLinks = [
   { label: 'Terms of Service', href: '/terms' },
   { label: 'Privacy Policy', href: '/privacy' },
-  { label: 'Admin Portal', href: '/admin' },
+  { label: 'Admin Portal', href: '/admin/login' },
 ];
 
 export default function Footer() {

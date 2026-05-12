@@ -66,21 +66,30 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
       }
 
       // Check the database role
-      const { data: profile } = await supabase
-        .from('profiles')
-        .select('role')
-        .eq('id', user.id)
-        .single();
+      try {
+        const { data: profile } = await supabase
+          .from('profiles')
+          .select('role')
+          .eq('id', user.id)
+          .single();
 
-      if (profile?.role === 'admin' || user.email === 'bridgesmwashighadi2@gmail.com') {
-        setIsAdmin(true);
-      } else {
+        const isSuperAdmin = profile?.role === 'admin' || user.email === 'bridgesmwashighadi2@gmail.com';
+
+        if (isSuperAdmin) {
+          setIsAdmin(true);
+        } else {
+          // If they are logged in but NOT an admin, take them to the admin login page
+          setIsAdmin(false);
+          router.push('/admin/login?error=unauthorized');
+        }
+      } catch (err) {
+        console.error('Security check failed', err);
         setIsAdmin(false);
-        router.push('/');
+        router.push('/admin/login');
       }
     }
     checkAdmin();
-  }, [router]);
+  }, [pathname, router]);
 
   const navItems = [
     { label: 'Overview', href: '/admin', icon: LayoutDashboard },
@@ -141,7 +150,14 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
         </nav>
 
         <div className="p-4 border-t border-slate-50">
-          <button className="flex items-center gap-3 w-full px-4 py-3 rounded-xl text-sm font-bold text-rose-500 hover:bg-rose-50 transition-all">
+          <button 
+            onClick={async () => {
+              const supabase = createClient();
+              await supabase.auth.signOut();
+              router.push('/admin/login');
+            }}
+            className="flex items-center gap-3 w-full px-4 py-3 rounded-xl text-sm font-bold text-rose-500 hover:bg-rose-50 transition-all"
+          >
             <LogOut size={18} />
             Sign Out
           </button>

@@ -185,7 +185,7 @@ export default function AdminListingsPage() {
                     </td>
 
                     <td className="px-6 py-5">
-                      <div className="flex items-center justify-center gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
+                      <div className="flex items-center justify-center gap-2 transition-opacity">
                         <Link 
                           href={`/listing-detail/${listing.slug}`} 
                           target="_blank"
@@ -206,10 +206,11 @@ export default function AdminListingsPage() {
                         {listing.status !== 'active' && (
                           <button 
                             onClick={() => handleStatusUpdate(listing.id, 'active')}
-                            className="p-2 bg-white border border-emerald-200 text-emerald-600 rounded-xl hover:bg-emerald-600 hover:text-white transition-all shadow-sm"
+                            className="flex items-center gap-1 px-3 py-2 bg-emerald-600 text-white rounded-xl hover:bg-emerald-700 transition-all shadow-lg font-bold text-[10px]"
                             title="Approve"
                           >
-                            <CheckCircle size={16} />
+                            <CheckCircle size={14} />
+                            APPROVE
                           </button>
                         )}
                         
