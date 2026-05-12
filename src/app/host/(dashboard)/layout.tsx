@@ -35,7 +35,7 @@ export default function HostDashboardLayout({ children }: { children: React.Reac
   const pathname = usePathname();
   const [user, setUser] = useState<any>(null);
   const [isExpanded, setIsExpanded] = useState(true);
-  const [notifications, setNotifications] = useState(3);
+
 
   useEffect(() => {
     const fetchUser = async () => {
@@ -306,18 +306,11 @@ export default function HostDashboardLayout({ children }: { children: React.Reac
             <motion.button
               whileHover={{ scale: 1.05 }}
               whileTap={{ scale: 0.95 }}
-              className="relative group p-3 rounded-2xl bg-gradient-to-br from-orange-500/10 to-red-500/10 backdrop-blur-sm border border-orange-200/50 shadow-lg hover:shadow-xl hover:shadow-orange-500/20 transition-all duration-500"
+              onClick={() => alert('No new notifications')}
+              className="relative group p-3 rounded-2xl bg-gradient-to-br from-slate-100 to-slate-200/50 backdrop-blur-sm border border-slate-200/50 shadow-lg hover:shadow-xl transition-all duration-500"
+              title="Notifications"
             >
-              <Bell className="w-5 h-5 text-orange-600 group-hover:rotate-12 transition-transform duration-300" />
-              {notifications > 0 && (
-                <motion.span
-                  className="absolute -top-1 -right-1 w-6 h-6 bg-gradient-to-br from-orange-500 to-red-500 text-white text-[10px] font-black rounded-full flex items-center justify-center shadow-xl shadow-orange-500/50 animate-bounce"
-                  initial={{ scale: 0 }}
-                  animate={{ scale: 1 }}
-                >
-                  {notifications}
-                </motion.span>
-              )}
+              <Bell className="w-5 h-5 text-slate-500 group-hover:text-slate-700 transition-colors duration-300" />
             </motion.button>
 
             <motion.button
