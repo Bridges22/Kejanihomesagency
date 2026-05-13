@@ -19,7 +19,7 @@ export default async function FeaturedCities() {
     'nairobi': '/images/locations/nairobi.png',
     'taita-taveta': '/images/locations/taita-taveta.png',
     'busia': 'https://images.unsplash.com/photo-1580237072617-771c3ecc4a24',
-    'malindi': 'https://images.unsplash.com/photo-1544161513-0179fe746fd5',
+    'malindi': '/images/locations/malindi.png',
     'kisumu': 'https://images.unsplash.com/photo-1731181475186-3633474eb8ca',
     'mombasa': 'https://images.unsplash.com/photo-1580237072617-771c3ecc4a24',
     'watamu': 'https://images.unsplash.com/photo-1544161513-0179fe746fd5',
@@ -55,7 +55,7 @@ export default async function FeaturedCities() {
 
         {/* Compact Grid Layout - Booking.com Small Style */}
         <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-6">
-          {cities.filter(city => city.slug !== 'kwale').map((city) => (
+          {cities.filter(city => city.slug !== 'kwale' && city.slug !== 'kombani').map((city) => (
             <Link
               key={city.id}
               href={`/search-results?city=${city.slug}`}
