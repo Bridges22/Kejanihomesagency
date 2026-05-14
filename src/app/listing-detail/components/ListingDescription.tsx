@@ -67,24 +67,40 @@ export default function ListingDescription({ listing }: ListingDescriptionProps)
 
       {/* Specific Details Section */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-        {/* Rental/Sale Specs */}
-        <div className={`p-6 rounded-[32px] border ${listing.listing_type === 'sale' ? 'bg-teal-50/50 border-teal-100' : 'bg-blue-50 border-blue-100'}`}>
-          <h3 className={`text-sm font-black uppercase tracking-widest mb-4 flex items-center gap-2 ${listing.listing_type === 'sale' ? 'text-teal-900' : 'text-blue-900'}`}>
+        {/* Dynamic Category Specs */}
+        <div className={`p-6 rounded-[32px] border ${
+          listing.category === 'Sale' || listing.category === 'Land' || listing.category === 'Commercial' ? 'bg-teal-50/50 border-teal-100' : 
+          listing.category === 'Airbnb' ? 'bg-rose-50 border-rose-100' : 'bg-blue-50 border-blue-100'
+        }`}>
+          <h3 className={`text-sm font-black uppercase tracking-widest mb-4 flex items-center gap-2 ${
+            listing.category === 'Sale' || listing.category === 'Land' || listing.category === 'Commercial' ? 'text-teal-900' : 
+            listing.category === 'Airbnb' ? 'text-rose-900' : 'text-blue-900'
+          }`}>
             <AlertCircle size={16} />
-            {listing.listing_type === 'sale' ? 'Sale Particulars' : 'Rental Terms'}
+            {listing.category === 'Airbnb' ? 'Short Stay Particulars' : 
+             listing.category === 'Land' ? 'Land Particulars' :
+             listing.category === 'Sale' || listing.category === 'Commercial' ? 'Sale/Commercial Particulars' : 'Rental Terms'}
           </h3>
           
           <div className="grid grid-cols-2 gap-y-4">
-            {listing.listing_type === 'rental' ? (
+            {listing.category === 'Rental' && (
               <>
-                <DetailItem label="Security Deposit" value={`${listing.depositMonths} Months`} />
-                <DetailItem label="Lease Period" value={listing.lease_period || 'Negotiable'} />
+                <DetailItem label="Security Deposit" value={listing.deposit ? listing.deposit : `${listing.depositMonths} Months`} />
+                <DetailItem label="Lease Period" value={listing.lease_duration || listing.lease_period || 'Negotiable'} />
                 <DetailItem label="Service Charge" value={listing.service_charge_included ? 'Included' : 'Not Included'} />
                 <DetailItem label="Available From" value={listing.available_from || 'Immediately'} />
               </>
-            ) : (
+            )}
+            {(listing.category === 'Airbnb' || listing.category === 'Short Stay' || listing.listing_type === 'airbnb') && (
               <>
-                <DetailItem label="Title Deed" value={listing.has_title_deed ? 'Available' : 'Pending'} />
+                <DetailItem label="Check-in Time" value={listing.check_in_time || '2:00 PM'} />
+                <DetailItem label="Check-out Time" value={listing.check_out_time || '10:00 AM'} />
+                <DetailItem label="Max Guests" value={listing.maxGuests || 'Not specified'} />
+              </>
+            )}
+            {(listing.category === 'Sale' || listing.category === 'Commercial' || listing.category === 'Land' || listing.listing_type === 'sale') && (
+              <>
+                <DetailItem label="Title Deed" value={listing.title_deed_status || (listing.has_title_deed ? 'Available' : 'Pending')} />
                 <DetailItem label="Tenure" value={listing.tenure_type} />
                 <DetailItem label="Lease Remaining" value={listing.remaining_lease_years ? `${listing.remaining_lease_years} Years` : 'N/A'} />
                 <DetailItem label="Property Condition" value={listing.property_condition} />

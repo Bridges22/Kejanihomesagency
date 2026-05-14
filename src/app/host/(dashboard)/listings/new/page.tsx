@@ -61,9 +61,20 @@ export default function NewListingPage() {
   const [formData, setFormData] = useState({
     // Basic Info
     title: '',
-    type: 'Apartment', // Property Type
-    listing_type: 'rental', // For Rent / For Sale
-    price: '',
+    type: 'Apartment', // Property Type (Sub-category)
+    category: 'Rental', // Airbnb, Rental, Sale, Land, Commercial
+    listing_type_detailed: 'rent', // short_stay, rent, sale, land, commercial_rent, commercial_sale
+    listing_type: 'rental', // Keeping for backward compatibility (rental, airbnb, sale)
+    
+    // Pricing
+    price_per_night: '',
+    price_per_month: '',
+    sale_price: '',
+    land_price: '',
+    commercial_rent_price: '',
+    commercial_sale_price: '',
+    price: '', // Keeping as fallback or general reference
+    
     currency: 'KES',
     price_frequency: 'Per Month',
     is_negotiable: false,
@@ -92,9 +103,12 @@ export default function NewListingPage() {
     floor_number: '',
     total_floors: '',
     size_sqft: '',
+    property_size: '',
     year_built: '',
     furnishing_status: 'unfurnished',
     parking_spaces: '0',
+    parking_details: '',
+    utilities_details: '',
     has_sq: false,
 
     // Amenities (Flat list for the form, will be grouped into amenities_config)
@@ -133,14 +147,20 @@ export default function NewListingPage() {
 
     // Specific Fields
     deposit_months: '1',
+    deposit: '',
     lease_period: '',
+    lease_duration: '',
     service_charge_included: false,
     available_from: '',
     has_title_deed: false,
+    title_deed_status: 'Freehold',
     tenure_type: 'freehold',
     remaining_lease_years: '',
     property_condition: 'new',
-    max_guests: '2'
+    max_guests: '2',
+    check_in_time: '14:00',
+    check_out_time: '10:00',
+    land_size: ''
   });
 
   const [cities, setCities] = useState<any[]>([]);
@@ -319,19 +339,45 @@ export default function NewListingPage() {
 
             <div className="space-y-6">
               <label className="block">
-                <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2 block">Property Type</span>
-                <select name="type" value={formData.type} onChange={handleInputChange} className="w-full px-5 py-4 rounded-2xl bg-slate-50 border-none focus:ring-2 focus:ring-teal-500/20 transition-all outline-none font-medium">
-                  {['Apartment', 'Bedsitter', 'Studio', 'Maisonette', 'Villa', 'Townhouse', 'AirBNB', 'Commercial Office', 'Shop', 'Warehouse', 'Land'].map(t => (
-                    <option key={t} value={t}>{t}</option>
-                  ))}
+                <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2 block">Primary Category</span>
+                <select name="category" value={formData.category} onChange={(e) => {
+                  handleInputChange(e);
+                  // Auto-set listing type based on category
+                  const cat = e.target.value;
+                  let lt = formData.listing_type_detailed;
+                  let oldLt = formData.listing_type;
+                  if (cat === 'Airbnb') { lt = 'short_stay'; oldLt = 'airbnb'; }
+                  else if (cat === 'Rental') { lt = 'rent'; oldLt = 'rental'; }
+                  else if (cat === 'Sale') { lt = 'sale'; oldLt = 'sale'; }
+                  else if (cat === 'Land') { lt = 'land'; oldLt = 'sale'; }
+                  else if (cat === 'Commercial') { lt = 'commercial_rent'; oldLt = 'rental'; }
+                  
+                  setFormData(prev => ({ ...prev, listing_type_detailed: lt, listing_type: oldLt }));
+                }} className="w-full px-5 py-4 rounded-2xl bg-slate-50 border-none focus:ring-2 focus:ring-teal-500/20 transition-all outline-none font-medium">
+                  <option value="Rental">Rental Property</option>
+                  <option value="Airbnb">Airbnb / Short Stay</option>
+                  <option value="Sale">Property for Sale</option>
+                  <option value="Land">Land</option>
+                  <option value="Commercial">Commercial Property</option>
                 </select>
               </label>
+
+              {formData.category === 'Commercial' && (
+                <label className="block animate-in fade-in slide-in-from-top-2">
+                  <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2 block">Commercial Type</span>
+                  <select name="listing_type_detailed" value={formData.listing_type_detailed} onChange={handleInputChange} className="w-full px-5 py-4 rounded-2xl bg-slate-50 border-none focus:ring-2 focus:ring-teal-500/20 transition-all outline-none font-medium">
+                    <option value="commercial_rent">For Rent</option>
+                    <option value="commercial_sale">For Sale</option>
+                  </select>
+                </label>
+              )}
+
               <label className="block">
-                <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2 block">Listing Type</span>
-                <select name="listing_type" value={formData.listing_type} onChange={handleInputChange} className="w-full px-5 py-4 rounded-2xl bg-slate-50 border-none focus:ring-2 focus:ring-teal-500/20 transition-all outline-none font-medium">
-                  <option value="rental">For Rent (Long-term)</option>
-                  <option value="sale">For Sale</option>
-                  <option value="airbnb">Short Stay (Airbnb/Vacation)</option>
+                <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2 block">Property Sub-Type</span>
+                <select name="type" value={formData.type} onChange={handleInputChange} className="w-full px-5 py-4 rounded-2xl bg-slate-50 border-none focus:ring-2 focus:ring-teal-500/20 transition-all outline-none font-medium">
+                  {['Apartment', 'Bedsitter', 'Studio', 'Maisonette', 'Villa', 'Townhouse', 'Holiday Home', 'Commercial Office', 'Shop', 'Warehouse', 'Farm', 'Plot'].map(t => (
+                    <option key={t} value={t}>{t}</option>
+                  ))}
                 </select>
               </label>
             </div>
@@ -340,10 +386,19 @@ export default function NewListingPage() {
               <div className="grid grid-cols-2 gap-4">
                 <label className="block">
                   <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2 block">
-                    {formData.listing_type === 'sale' ? 'Selling Price' : formData.listing_type === 'airbnb' ? 'Price Per Night' : 'Monthly Rent'}
+                    {formData.category === 'Airbnb' ? 'Price Per Night' : 
+                     formData.category === 'Rental' ? 'Price Per Month' : 
+                     formData.category === 'Sale' ? 'Sale Price' : 
+                     formData.category === 'Land' ? 'Land Price' : 
+                     formData.listing_type_detailed === 'commercial_rent' ? 'Rent Per Month' : 'Sale Price'}
                   </span>
                   <div className="relative">
-                    <input required type="number" name="price" value={formData.price} onChange={handleInputChange} className="w-full pl-10 pr-5 py-4 rounded-2xl bg-slate-50 border-none focus:ring-2 focus:ring-teal-500/20 transition-all outline-none font-medium" />
+                    {formData.category === 'Airbnb' && <input required type="number" name="price_per_night" value={formData.price_per_night} onChange={handleInputChange} className="w-full pl-10 pr-5 py-4 rounded-2xl bg-slate-50 border-none focus:ring-2 focus:ring-teal-500/20 transition-all outline-none font-medium" />}
+                    {formData.category === 'Rental' && <input required type="number" name="price_per_month" value={formData.price_per_month} onChange={handleInputChange} className="w-full pl-10 pr-5 py-4 rounded-2xl bg-slate-50 border-none focus:ring-2 focus:ring-teal-500/20 transition-all outline-none font-medium" />}
+                    {formData.category === 'Sale' && <input required type="number" name="sale_price" value={formData.sale_price} onChange={handleInputChange} className="w-full pl-10 pr-5 py-4 rounded-2xl bg-slate-50 border-none focus:ring-2 focus:ring-teal-500/20 transition-all outline-none font-medium" />}
+                    {formData.category === 'Land' && <input required type="number" name="land_price" value={formData.land_price} onChange={handleInputChange} className="w-full pl-10 pr-5 py-4 rounded-2xl bg-slate-50 border-none focus:ring-2 focus:ring-teal-500/20 transition-all outline-none font-medium" />}
+                    {formData.category === 'Commercial' && formData.listing_type_detailed === 'commercial_rent' && <input required type="number" name="commercial_rent_price" value={formData.commercial_rent_price} onChange={handleInputChange} className="w-full pl-10 pr-5 py-4 rounded-2xl bg-slate-50 border-none focus:ring-2 focus:ring-teal-500/20 transition-all outline-none font-medium" />}
+                    {formData.category === 'Commercial' && formData.listing_type_detailed === 'commercial_sale' && <input required type="number" name="commercial_sale_price" value={formData.commercial_sale_price} onChange={handleInputChange} className="w-full pl-10 pr-5 py-4 rounded-2xl bg-slate-50 border-none focus:ring-2 focus:ring-teal-500/20 transition-all outline-none font-medium" />}
                     <DollarSign size={16} className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400" />
                   </div>
                 </label>
@@ -703,17 +758,17 @@ export default function NewListingPage() {
             </div>
 
             <div className="space-y-8">
-              {formData.listing_type === 'rental' ? (
+              {formData.category === 'Rental' ? (
                 <div className="space-y-6 animate-in fade-in slide-in-from-bottom-4">
                   <h3 className="text-sm font-black text-slate-400 uppercase tracking-[0.2em] mb-4">Rental Specifics</h3>
                   <div className="grid grid-cols-2 gap-4">
                     <label className="block">
-                      <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2 block">Deposit (Months)</span>
-                      <input type="number" name="deposit_months" value={formData.deposit_months} onChange={handleInputChange} className="w-full px-5 py-4 rounded-2xl bg-slate-50 border-none focus:ring-2 focus:ring-teal-500/20 outline-none font-medium" />
+                      <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2 block">Deposit (Amount/Months)</span>
+                      <input type="text" name="deposit" value={formData.deposit} onChange={handleInputChange} className="w-full px-5 py-4 rounded-2xl bg-slate-50 border-none focus:ring-2 focus:ring-teal-500/20 outline-none font-medium" />
                     </label>
                     <label className="block">
-                      <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2 block">Min Lease</span>
-                      <input name="lease_period" value={formData.lease_period} onChange={handleInputChange} className="w-full px-5 py-4 rounded-2xl bg-slate-50 border-none focus:ring-2 focus:ring-teal-500/20 outline-none font-medium" placeholder="e.g. 1 Year" />
+                      <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2 block">Lease Duration</span>
+                      <input name="lease_duration" value={formData.lease_duration} onChange={handleInputChange} className="w-full px-5 py-4 rounded-2xl bg-slate-50 border-none focus:ring-2 focus:ring-teal-500/20 outline-none font-medium" placeholder="e.g. 1 Year" />
                     </label>
                   </div>
                   <label className="block">
@@ -728,7 +783,7 @@ export default function NewListingPage() {
                     <span className="text-xs font-bold text-slate-700">Service charge included in rent?</span>
                   </label>
                 </div>
-              ) : formData.listing_type === 'airbnb' ? (
+              ) : formData.category === 'Airbnb' || formData.category === 'Short Stay' ? (
                 <div className="space-y-6 animate-in fade-in slide-in-from-bottom-4">
                   <h3 className="text-sm font-black text-slate-400 uppercase tracking-[0.2em] mb-4">Airbnb Specifics</h3>
                   <div className="bg-rose-50 border border-rose-100 p-6 rounded-[32px] space-y-4">
@@ -740,12 +795,22 @@ export default function NewListingPage() {
                       Airbnb listings are automatically optimized for short stays. Ensure your photos and amenities (WiFi, Pool, etc.) are up to date to attract more guests.
                     </p>
                   </div>
-                  <label className="block">
-                    <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2 block">Max Guests</span>
-                    <input type="number" name="max_guests" value={formData.max_guests} onChange={handleInputChange} className="w-full px-5 py-4 rounded-2xl bg-slate-50 border-none focus:ring-2 focus:ring-teal-500/20 outline-none font-medium" placeholder="e.g. 4" />
-                  </label>
+                  <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                    <label className="block">
+                      <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2 block">Max Guests</span>
+                      <input type="number" name="max_guests" value={formData.max_guests} onChange={handleInputChange} className="w-full px-5 py-4 rounded-2xl bg-slate-50 border-none focus:ring-2 focus:ring-teal-500/20 outline-none font-medium" placeholder="e.g. 4" />
+                    </label>
+                    <label className="block">
+                      <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2 block">Check-in Time</span>
+                      <input type="time" name="check_in_time" value={formData.check_in_time} onChange={handleInputChange} className="w-full px-5 py-4 rounded-2xl bg-slate-50 border-none focus:ring-2 focus:ring-teal-500/20 outline-none font-medium" />
+                    </label>
+                    <label className="block">
+                      <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2 block">Check-out Time</span>
+                      <input type="time" name="check_out_time" value={formData.check_out_time} onChange={handleInputChange} className="w-full px-5 py-4 rounded-2xl bg-slate-50 border-none focus:ring-2 focus:ring-teal-500/20 outline-none font-medium" />
+                    </label>
+                  </div>
                 </div>
-              ) : (
+              ) : formData.category === 'Sale' || formData.category === 'Commercial' ? (
                 <div className="space-y-6 animate-in fade-in slide-in-from-bottom-4">
                   <h3 className="text-sm font-black text-slate-400 uppercase tracking-[0.2em] mb-4">Sale Specifics</h3>
                   <div className="grid grid-cols-2 gap-4">
@@ -774,7 +839,32 @@ export default function NewListingPage() {
                     <span className="text-xs font-bold text-teal-900">Title Deed Available?</span>
                   </label>
                 </div>
-              )}
+              ) : formData.category === 'Land' ? (
+                <div className="space-y-6 animate-in fade-in slide-in-from-bottom-4">
+                  <h3 className="text-sm font-black text-slate-400 uppercase tracking-[0.2em] mb-4">Land Specifics</h3>
+                  <div className="grid grid-cols-2 gap-4">
+                    <label className="block">
+                      <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2 block">Tenure</span>
+                      <select name="tenure_type" value={formData.tenure_type} onChange={handleInputChange} className="w-full px-5 py-4 rounded-2xl bg-slate-50 border-none focus:ring-2 focus:ring-teal-500/20 outline-none font-medium">
+                        <option value="freehold">Freehold</option>
+                        <option value="leasehold">Leasehold</option>
+                      </select>
+                    </label>
+                    <label className="block">
+                      <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2 block">Title Deed Status</span>
+                      <select name="title_deed_status" value={formData.title_deed_status} onChange={handleInputChange} className="w-full px-5 py-4 rounded-2xl bg-slate-50 border-none focus:ring-2 focus:ring-teal-500/20 outline-none font-medium">
+                        <option value="Ready">Ready</option>
+                        <option value="In Progress">In Progress</option>
+                        <option value="No Title">No Title</option>
+                      </select>
+                    </label>
+                  </div>
+                  <label className="block">
+                    <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2 block">Land Size</span>
+                    <input name="land_size" value={formData.land_size} onChange={handleInputChange} className="w-full px-5 py-4 rounded-2xl bg-slate-50 border-none focus:ring-2 focus:ring-teal-500/20 outline-none font-medium" placeholder="e.g. 50x100, 1 Acre" />
+                  </label>
+                </div>
+              ) : null}
             </div>
           </div>
         )}

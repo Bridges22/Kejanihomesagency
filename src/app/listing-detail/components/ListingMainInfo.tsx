@@ -40,8 +40,11 @@ export default function ListingMainInfo({ listing }: ListingMainInfoProps) {
     toast.success(saved ? 'Removed from saved listings' : 'Added to saved listings');
   };
 
-  const isSale = listing.listing_type === 'sale' || listing.type === 'sale';
-  const isAirbnb = listing.listing_type === 'airbnb' || listing.type === 'airbnb';
+  const isSale = listing.category === 'Sale' || listing.listing_type === 'sale' || listing.type === 'sale';
+  const isAirbnb = listing.category === 'Airbnb' || listing.category === 'Short Stay' || listing.listing_type === 'airbnb' || listing.type === 'airbnb';
+  const isLand = listing.category === 'Land';
+  const isCommercial = listing.category === 'Commercial';
+  const isRental = listing.category === 'Rental' || (!isSale && !isAirbnb && !isLand && !isCommercial);
   
   const price = isSale 
     ? (listing.total_price || listing.price)
@@ -67,8 +70,12 @@ export default function ListingMainInfo({ listing }: ListingMainInfoProps) {
               <Star size={12} className="fill-amber-400 text-amber-400" /> Featured
             </span>
           )}
-          <span className={`${(listing.listing_type === 'rental' || listing.type === 'rental') ? 'badge-rental' : (listing.listing_type === 'airbnb' || listing.type === 'airbnb') ? 'badge-airbnb' : 'badge-sale'} inline-flex items-center gap-1.5`}>
-            {isSale ? <><Tag size={14} /> For Sale</> : isAirbnb ? <><Home size={14} /> Short Stay</> : <><Home size={14} /> For Rent</>}
+          <span className={`${isRental ? 'badge-rental' : isAirbnb ? 'badge-airbnb' : 'badge-sale'} inline-flex items-center gap-1.5`}>
+            {isLand ? <><MapPin size={14} /> Land Plot</> 
+             : isCommercial ? <><Building2 size={14} /> Commercial</>
+             : isSale ? <><Tag size={14} /> For Sale</> 
+             : isAirbnb ? <><Home size={14} /> Short Stay</> 
+             : <><Home size={14} /> For Rent</>}
           </span>
           {listing.is_negotiable && (
             <span className="px-2 py-0.5 rounded-full bg-teal-50 text-teal-700 text-[10px] font-black uppercase tracking-widest border border-teal-100">

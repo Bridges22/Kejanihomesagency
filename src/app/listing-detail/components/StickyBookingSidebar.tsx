@@ -27,7 +27,11 @@ export default function StickyBookingSidebar({ listing }: StickyBookingSidebarPr
     ? Math.max(1, Math.ceil((new Date(checkOut).getTime() - new Date(checkIn).getTime()) / (1000 * 60 * 60 * 24)))
     : 0;
 
-  const nightlyRate = listing.pricePerNight || listing.price || 0;
+  const isSale = listing.category === 'Sale' || listing.category === 'Land' || (listing.category === 'Commercial' && listing.listing_type_detailed === 'commercial_sale') || listing.listing_type === 'sale';
+  const isRental = listing.category === 'Rental' || (listing.category === 'Commercial' && listing.listing_type_detailed === 'commercial_rent') || listing.listing_type === 'rental';
+  const isAirbnb = !isSale && !isRental; // fallback
+
+  const nightlyRate = listing.price_per_night ?? listing.pricePerNight ?? listing.price ?? 0;
   const platformFee = Math.round(nightlyRate * nights * 0.1);
   const total = nightlyRate * nights + platformFee;
 
@@ -37,7 +41,7 @@ export default function StickyBookingSidebar({ listing }: StickyBookingSidebarPr
       return;
     }
 
-    setUnlocking(true);
+    // setUnlocking(true);
     try {
       if (paymentMethod === 'mpesa') {
         await paymentService.triggerStkPush(phoneNumber, listing.unlockFee, listing.id);
@@ -50,8 +54,8 @@ export default function StickyBookingSidebar({ listing }: StickyBookingSidebarPr
           {
             loading: 'Waiting for payment confirmation...',
             success: () => {
-              setUnlocked(true);
-              setShowPaywall(false);
+              // setUnlocked(true);
+              // setShowPaywall(false);
               return 'Listing unlocked! Contact details revealed.';
             },
             error: 'Payment failed or timed out. Please try again.',
@@ -60,14 +64,14 @@ export default function StickyBookingSidebar({ listing }: StickyBookingSidebarPr
       } else {
         // Mock card payment
         await new Promise(r => setTimeout(r, 2000));
-        setUnlocked(true);
-        setShowPaywall(false);
+        // setUnlocked(true);
+        // setShowPaywall(false);
         toast.success('Listing unlocked! Contact details revealed.');
       }
     } catch (err: any) {
       toast.error(err.message || 'Payment failed');
     } finally {
-      setUnlocking(false);
+      // setUnlocking(false);
     }
   };
 
@@ -92,14 +96,15 @@ export default function StickyBookingSidebar({ listing }: StickyBookingSidebarPr
     );
   }
 
-  if (listing.listing_type === 'sale') {
+  if (isSale) {
+    const salePrice = listing.sale_price ?? listing.land_price ?? listing.commercial_sale_price ?? listing.total_price ?? listing.price ?? 0;
     return (
       <div className="bg-white rounded-2xl border border-gray-100 shadow-card overflow-hidden">
         {/* Price Header */}
         <div className="p-5 border-b border-gray-50 bg-teal-50/30">
           <div className="flex items-baseline gap-1 mb-2">
             <span className="font-display text-3xl font-black text-gray-900 tabular-nums">
-              {listing.currency} {(listing.total_price || listing.price || 0).toLocaleString()}
+              {listing.currency} {salePrice.toLocaleString()}
             </span>
           </div>
           <p className="text-xs font-bold text-gray-500 uppercase tracking-widest">Total Price</p>
@@ -153,14 +158,15 @@ export default function StickyBookingSidebar({ listing }: StickyBookingSidebarPr
     );
   }
 
-  if (listing.type === 'rental' || listing.listing_type === 'rental') {
+  if (isRental) {
+    const rentPrice = listing.price_per_month ?? listing.commercial_rent_price ?? listing.pricePerMonth ?? listing.price ?? 0;
     return (
       <div className="bg-white rounded-2xl border border-gray-100 shadow-card overflow-hidden">
         {/* Price Header */}
         <div className="p-5 border-b border-gray-50 bg-gray-50/30">
           <div className="flex items-baseline gap-1 mb-2">
             <span className="font-display text-3xl font-black text-gray-900 tabular-nums">
-              {listing.currency} {(listing.pricePerMonth || listing.price || 0).toLocaleString()}
+              {listing.currency} {rentPrice.toLocaleString()}
             </span>
             <span className="text-gray-400 text-sm font-semibold">/month</span>
           </div>
@@ -248,7 +254,7 @@ export default function StickyBookingSidebar({ listing }: StickyBookingSidebarPr
         <div className="p-5 border-b border-gray-50 bg-gray-50/30">
           <div className="flex items-baseline gap-1 mb-2">
             <span className="font-display text-3xl font-black text-gray-900 tabular-nums">
-              {listing.currency} {(listing.pricePerNight || listing.price || 0).toLocaleString()}
+              {listing.currency} {nightlyRate.toLocaleString()}
             </span>
             <span className="text-gray-400 text-sm font-semibold">/night</span>
           </div>

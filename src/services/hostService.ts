@@ -181,21 +181,41 @@ export const hostService = {
         has_sq: listingData.has_sq,
         // max_guests: safeNum(listingData.max_guests), // CRITICAL: Disabled due to persistent Schema Cache error in DB
         
-        // Pricing (VERIFIED LIVE SCHEMA: uses _per_month and _per_night)
-        price_per_month: listingData.listing_type === 'rental' ? safeNum(listingData.price) : null,
-        price_per_night: listingData.listing_type === 'airbnb' ? safeNum(listingData.price) : null,
-        total_price: listingData.listing_type === 'sale' ? safeNum(listingData.price) : null,
+        // Pricing (New Specific Columns)
+        price_per_night: safeNum(listingData.price_per_night),
+        price_per_month: safeNum(listingData.price_per_month),
+        sale_price: safeNum(listingData.sale_price),
+        land_price: safeNum(listingData.land_price),
+        commercial_rent_price: safeNum(listingData.commercial_rent_price),
+        commercial_sale_price: safeNum(listingData.commercial_sale_price),
+        total_price: listingData.category === 'Sale' || listingData.category === 'Land' || listingData.listing_type_detailed === 'commercial_sale' 
+          ? safeNum(listingData.sale_price || listingData.land_price || listingData.commercial_sale_price) 
+          : null,
+        
+        category: listingData.category,
+        listing_type_detailed: listingData.listing_type_detailed,
         currency: listingData.currency || 'KES',
         is_negotiable: listingData.is_negotiable,
         
         // Terms
+        deposit: listingData.deposit,
         deposit_months: safeNum(listingData.deposit_months),
         lease_period: listingData.lease_period,
+        lease_duration: listingData.lease_duration,
         service_charge_included: listingData.service_charge_included,
         available_from: listingData.available_from || null,
         
-        // Sale specific
+        // Specifics
+        check_in_time: listingData.check_in_time,
+        check_out_time: listingData.check_out_time,
+        land_size: listingData.land_size,
+        property_size: listingData.property_size,
+        parking_details: listingData.parking_details,
+        utilities_details: listingData.utilities_details,
+        
+        // Sale/Land specific
         has_title_deed: listingData.has_title_deed,
+        title_deed_status: listingData.title_deed_status,
         tenure_type: listingData.tenure_type,
         remaining_lease_years: safeNum(listingData.remaining_lease_years),
         property_condition: listingData.property_condition,
@@ -297,15 +317,36 @@ export const hostService = {
         parking_spaces: safeNum(listingData.parking_spaces),
         has_sq: listingData.has_sq,
         // max_guests: safeNum(listingData.max_guests), // CRITICAL: Disabled due to persistent Schema Cache error in DB
-        price_per_month: listingData.listing_type === 'rental' ? safeNum(listingData.price) : null,
-        price_per_night: listingData.listing_type === 'airbnb' ? safeNum(listingData.price) : null,
-        total_price: listingData.listing_type === 'sale' ? safeNum(listingData.price) : null,
+        price_per_night: safeNum(listingData.price_per_night),
+        price_per_month: safeNum(listingData.price_per_month),
+        sale_price: safeNum(listingData.sale_price),
+        land_price: safeNum(listingData.land_price),
+        commercial_rent_price: safeNum(listingData.commercial_rent_price),
+        commercial_sale_price: safeNum(listingData.commercial_sale_price),
+        total_price: listingData.category === 'Sale' || listingData.category === 'Land' || listingData.listing_type_detailed === 'commercial_sale' 
+          ? safeNum(listingData.sale_price || listingData.land_price || listingData.commercial_sale_price) 
+          : null,
+        category: listingData.category,
+        listing_type_detailed: listingData.listing_type_detailed,
         currency: listingData.currency,
         is_negotiable: listingData.is_negotiable,
+        deposit: listingData.deposit,
         deposit_months: safeNum(listingData.deposit_months),
         lease_period: listingData.lease_period,
+        lease_duration: listingData.lease_duration,
         service_charge_included: listingData.service_charge_included,
         available_from: listingData.available_from || null,
+        check_in_time: listingData.check_in_time,
+        check_out_time: listingData.check_out_time,
+        land_size: listingData.land_size,
+        property_size: listingData.property_size,
+        parking_details: listingData.parking_details,
+        utilities_details: listingData.utilities_details,
+        has_title_deed: listingData.has_title_deed,
+        title_deed_status: listingData.title_deed_status,
+        tenure_type: listingData.tenure_type,
+        remaining_lease_years: safeNum(listingData.remaining_lease_years),
+        property_condition: listingData.property_condition,
         agent_name: listingData.agent_name,
         agency_name: listingData.agency_name,
         agent_phone: listingData.agent_phone,

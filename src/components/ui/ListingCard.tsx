@@ -18,8 +18,23 @@ export interface ListingCardData {
   bedrooms: number;
   bathrooms: number;
   maxGuests?: number;
-  pricePerMonth?: number;
-  pricePerNight?: number;
+  category?: string;
+  listing_type_detailed?: string;
+  price_per_night?: number;
+  price_per_month?: number;
+  sale_price?: number;
+  land_price?: number;
+  commercial_rent_price?: number;
+  commercial_sale_price?: number;
+  check_in_time?: string;
+  check_out_time?: string;
+  land_size?: string;
+  property_size?: string;
+  title_deed_status?: string;
+  utilities_details?: string;
+  parking_details?: string;
+  lease_duration?: string;
+  deposit?: string;
   totalPrice?: number;
   currency: string;
   isVerified: boolean;
@@ -43,15 +58,30 @@ export default function ListingCard({ listing, variant = 'grid' }: ListingCardPr
   let displayPrice = '';
   let priceLabel = '';
   
-  if (listing.type === 'sale') {
-    displayPrice = `${listing.currency} ${(listing.totalPrice ?? 0).toLocaleString()}`;
-    priceLabel = 'Total';
-  } else if (listing.type === 'rental') {
-    displayPrice = `${listing.currency} ${(listing.pricePerMonth ?? 0).toLocaleString()}`;
-    priceLabel = 'per month';
-  } else {
-    displayPrice = `${listing.currency} ${(listing.pricePerNight ?? 0).toLocaleString()}`;
+  // Check the new specific category field first
+  if (listing.category === 'Airbnb' || listing.category === 'Short Stay' || listing.type === 'airbnb') {
+    displayPrice = `${listing.currency} ${(listing.price_per_night ?? 0).toLocaleString()}`;
     priceLabel = 'per night';
+  } else if (listing.category === 'Rental' || listing.category === 'Rent' || listing.type === 'rental') {
+    displayPrice = `${listing.currency} ${(listing.price_per_month ?? 0).toLocaleString()}`;
+    priceLabel = 'per month';
+  } else if (listing.category === 'Land') {
+    displayPrice = `${listing.currency} ${(listing.land_price ?? listing.totalPrice ?? 0).toLocaleString()}`;
+    priceLabel = 'Total';
+  } else if (listing.category === 'Commercial') {
+    if (listing.listing_type_detailed === 'commercial_rent') {
+      displayPrice = `${listing.currency} ${(listing.commercial_rent_price ?? 0).toLocaleString()}`;
+      priceLabel = 'per month';
+    } else {
+      displayPrice = `${listing.currency} ${(listing.commercial_sale_price ?? listing.totalPrice ?? 0).toLocaleString()}`;
+      priceLabel = 'Total';
+    }
+  } else if (listing.category === 'Sale' || listing.type === 'sale') {
+    displayPrice = `${listing.currency} ${(listing.sale_price ?? listing.totalPrice ?? 0).toLocaleString()}`;
+    priceLabel = 'Total';
+  } else {
+    displayPrice = `${listing.currency} 0`;
+    priceLabel = 'Contact for price';
   }
 
   if (variant === 'list') {
