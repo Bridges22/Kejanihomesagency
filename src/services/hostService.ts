@@ -179,7 +179,7 @@ export const hostService = {
         furnishing_status: listingData.furnishing_status,
         parking_spaces: safeNum(listingData.parking_spaces),
         has_sq: listingData.has_sq,
-        // max_guests: safeNum(listingData.max_guests), // CRITICAL: Disabled due to persistent Schema Cache error in DB
+        max_guests: safeNum(listingData.max_guests),
         
         // Pricing (New Specific Columns)
         price_per_night: safeNum(listingData.price_per_night),
@@ -198,7 +198,7 @@ export const hostService = {
         is_negotiable: listingData.is_negotiable,
         
         // Terms (Only relevant for Rentals)
-        deposit: listingData.category === 'Rental' ? listingData.deposit : undefined,
+        deposit: listingData.category === 'Rental' ? safeNum(listingData.deposit) : undefined,
         deposit_months: listingData.category === 'Rental' ? safeNum(listingData.deposit_months) : undefined,
         lease_period: listingData.lease_period,
         lease_duration: listingData.lease_duration,
@@ -208,8 +208,8 @@ export const hostService = {
         // Specifics
         check_in_time: listingData.check_in_time,
         check_out_time: listingData.check_out_time,
-        land_size: listingData.land_size,
-        property_size: listingData.property_size,
+        land_size: safeNum(listingData.land_size),
+        property_size: safeNum(listingData.property_size),
         parking_details: listingData.parking_details,
         utilities_details: listingData.utilities_details,
         
@@ -316,7 +316,7 @@ export const hostService = {
         furnishing_status: listingData.furnishing_status,
         parking_spaces: safeNum(listingData.parking_spaces),
         has_sq: listingData.has_sq,
-        // max_guests: safeNum(listingData.max_guests), // CRITICAL: Disabled due to persistent Schema Cache error in DB
+        max_guests: safeNum(listingData.max_guests),
         price_per_night: safeNum(listingData.price_per_night),
         price_per_month: safeNum(listingData.price_per_month),
         sale_price: safeNum(listingData.sale_price),
@@ -330,7 +330,7 @@ export const hostService = {
         listing_type_detailed: listingData.listing_type_detailed,
         currency: listingData.currency,
         is_negotiable: listingData.is_negotiable,
-        deposit: listingData.category === 'Rental' ? listingData.deposit : undefined,
+        deposit: listingData.category === 'Rental' ? safeNum(listingData.deposit) : undefined,
         deposit_months: listingData.category === 'Rental' ? safeNum(listingData.deposit_months) : undefined,
         lease_period: listingData.lease_period,
         lease_duration: listingData.lease_duration,
@@ -338,8 +338,8 @@ export const hostService = {
         available_from: listingData.available_from || null,
         check_in_time: listingData.check_in_time,
         check_out_time: listingData.check_out_time,
-        land_size: listingData.land_size,
-        property_size: listingData.property_size,
+        land_size: safeNum(listingData.land_size),
+        property_size: safeNum(listingData.property_size),
         parking_details: listingData.parking_details,
         utilities_details: listingData.utilities_details,
         has_title_deed: listingData.has_title_deed,
