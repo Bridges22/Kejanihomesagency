@@ -197,9 +197,9 @@ export const hostService = {
         currency: listingData.currency || 'KES',
         is_negotiable: listingData.is_negotiable,
         
-        // Terms
-        deposit: listingData.deposit,
-        deposit_months: safeNum(listingData.deposit_months),
+        // Terms (Only relevant for Rentals)
+        deposit: listingData.category === 'Rental' ? listingData.deposit : undefined,
+        deposit_months: listingData.category === 'Rental' ? safeNum(listingData.deposit_months) : undefined,
         lease_period: listingData.lease_period,
         lease_duration: listingData.lease_duration,
         service_charge_included: listingData.service_charge_included,
@@ -330,8 +330,8 @@ export const hostService = {
         listing_type_detailed: listingData.listing_type_detailed,
         currency: listingData.currency,
         is_negotiable: listingData.is_negotiable,
-        deposit: listingData.deposit,
-        deposit_months: safeNum(listingData.deposit_months),
+        deposit: listingData.category === 'Rental' ? listingData.deposit : undefined,
+        deposit_months: listingData.category === 'Rental' ? safeNum(listingData.deposit_months) : undefined,
         lease_period: listingData.lease_period,
         lease_duration: listingData.lease_duration,
         service_charge_included: listingData.service_charge_included,
