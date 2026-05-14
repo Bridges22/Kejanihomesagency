@@ -124,6 +124,63 @@ export const adminService = {
   },
 
   /**
+   * Fetch listings pending approval
+   */
+  async getPendingApprovals() {
+    const supabase = createClient();
+    const { data, error } = await supabase
+      .from('listings')
+      .select(`
+        *,
+        host:profiles!host_id (full_name, email),
+        cities (name)
+      `)
+      .eq('approval_status', 'pending_approval')
+      .order('created_at', { ascending: false });
+
+    if (error) throw error;
+    return data;
+  },
+
+  /**
+   * Approve, Reject or Request Changes for a listing
+   */
+  async moderateListing(id: string, status: 'approved' | 'rejected' | 'changes_requested', reason?: string) {
+    const supabase = createClient();
+    const { data: { user } } = await supabase.auth.getUser();
+
+    const updatePayload: any = {
+      approval_status: status,
+      rejection_reason: reason || null,
+      approved_by: status === 'approved' ? user?.id : null,
+      approved_at: status === 'approved' ? new Date().toISOString() : null,
+      // If approved, set the general status to active
+      status: status === 'approved' ? 'active' : 'inactive'
+    };
+
+    const { error } = await supabase
+      .from('listings')
+      .update(updatePayload)
+      .eq('id', id);
+
+    if (!error) {
+      try {
+        const { auditService } = await import('./auditService');
+        await auditService.logEvent('LISTING_MODERATION', { 
+          listing_id: id, 
+          decision: status,
+          reason 
+        });
+      } catch (auditErr) {
+        console.warn('Audit logging failed:', auditErr);
+      }
+    }
+
+    if (error) throw error;
+    return true;
+  },
+
+  /**
    * Delete a user account (Requires Edge Function)
    */
   async deleteUser(userId: string) {
@@ -176,10 +233,12 @@ export const adminService = {
    */
   async deleteListing(id: string) {
     const supabase = createClient();
-    const { error } = await supabase
+    const { data, error } = await supabase
       .from('listings')
       .delete()
-      .eq('id', id);
+      .eq('id', id)
+      .select('id')
+      .single();
 
     if (!error) {
       const { auditService } = await import('./auditService');

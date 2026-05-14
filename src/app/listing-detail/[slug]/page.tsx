@@ -20,7 +20,7 @@ export async function generateMetadata({ params }: { params: { slug: string } })
       ? `KES ${listing.price_per_month?.toLocaleString()}/mo`
       : `KES ${listing.price_per_night?.toLocaleString()}/night`;
 
-  const description = `${listing.property_category} in ${listing.area}, ${listing.cities?.name}. ${listing.bedrooms} Bedroom | ${listing.bathrooms} Bath. ${listing.short_description || ''}`;
+  const description = `${listing.property_category} in ${listing.area}, ${listing.county || listing.cities?.name}. ${listing.bedrooms} Bedroom | ${listing.bathrooms} Bath. ${listing.short_description || ''}`;
   const imageUrl = listing.photos?.[0]?.url || 'https://kejanihomes.co.ke/og-default.png';
 
   return {
@@ -112,6 +112,7 @@ export default async function Page({ params }: { params: { slug: string } }) {
       furnishing_status: listing.furnishing_status,
       parking_spaces: listing.parking_spaces,
       has_sq: listing.has_sq,
+      max_guests: listing.max_guests,
       
       amenities: listing.amenities_config || {},
       short_description: listing.short_description,
@@ -129,8 +130,8 @@ export default async function Page({ params }: { params: { slug: string } }) {
         show_contact: listing.show_contact_publicly
       },
       
-      pricePerMonth: listing.price_per_month,
-      pricePerNight: listing.price_per_night,
+      price_per_month: listing.price_per_month,
+      price_per_night: listing.price_per_night,
       sale_price: listing.sale_price,
       land_price: listing.land_price,
       commercial_rent_price: listing.commercial_rent_price,

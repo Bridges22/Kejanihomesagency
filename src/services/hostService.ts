@@ -8,7 +8,7 @@ export const hostService = {
     const supabase = createClient();
     const { data: listings, error: listingsError } = await supabase
       .from('listings')
-      .select('id, view_count, unlock_count, status, area')
+      .select('id, view_count, unlock_count, status, approval_status, area')
       .eq('host_id', hostId);
       
     if (listingsError) console.error('Error fetching host listings:', listingsError);
@@ -23,8 +23,8 @@ export const hostService = {
     if (listings) {
       listings.forEach(l => {
         listingIds.push(l.id);
-        if (l.status?.toLowerCase() === 'active') activeListings++;
-        if (l.status?.toLowerCase() === 'pending') draftListings++;
+        if (l.approval_status === 'approved') activeListings++;
+        if (l.approval_status === 'pending_approval' || l.approval_status === 'changes_requested') draftListings++;
         totalViews += (l.view_count || 0);
         totalLeads += (l.unlock_count || 0);
         
@@ -229,7 +229,8 @@ export const hostService = {
         
         amenities_config: listingData.amenities_config || {},
         images: photoUrls, // Send photos directly to the 'images' column too
-        status: 'active'
+        status: 'inactive', // Property is inactive until approved
+        approval_status: 'pending_approval'
     };
 
     console.log("EXACT FINAL PAYLOAD FOR INSERT:", insertPayload);

@@ -35,7 +35,8 @@ export interface ListingCardData {
   parking_details?: string;
   lease_duration?: string;
   deposit?: string;
-  totalPrice?: number;
+  total_price?: number;
+  totalPrice?: number; // Legacy support
   currency: string;
   isVerified: boolean;
   isFeatured: boolean;
@@ -66,18 +67,18 @@ export default function ListingCard({ listing, variant = 'grid' }: ListingCardPr
     displayPrice = `${listing.currency} ${(listing.price_per_month ?? 0).toLocaleString()}`;
     priceLabel = 'per month';
   } else if (listing.category === 'Land') {
-    displayPrice = `${listing.currency} ${(listing.land_price ?? listing.totalPrice ?? 0).toLocaleString()}`;
+    displayPrice = `${listing.currency} ${(listing.price_per_night || listing.land_price || listing.total_price || listing.totalPrice || 0).toLocaleString()}`;
     priceLabel = 'Total';
   } else if (listing.category === 'Commercial') {
     if (listing.listing_type_detailed === 'commercial_rent') {
       displayPrice = `${listing.currency} ${(listing.commercial_rent_price ?? 0).toLocaleString()}`;
       priceLabel = 'per month';
     } else {
-      displayPrice = `${listing.currency} ${(listing.commercial_sale_price ?? listing.totalPrice ?? 0).toLocaleString()}`;
+      displayPrice = `${listing.currency} ${(listing.commercial_sale_price ?? listing.total_price ?? listing.totalPrice ?? 0).toLocaleString()}`;
       priceLabel = 'Total';
     }
   } else if (listing.category === 'Sale' || listing.type === 'sale') {
-    displayPrice = `${listing.currency} ${(listing.sale_price ?? listing.totalPrice ?? 0).toLocaleString()}`;
+    displayPrice = `${listing.currency} ${(listing.sale_price ?? listing.total_price ?? listing.totalPrice ?? 0).toLocaleString()}`;
     priceLabel = 'Total';
   } else {
     displayPrice = `${listing.currency} 0`;
@@ -141,11 +142,13 @@ export default function ListingCard({ listing, variant = 'grid' }: ListingCardPr
               </div>
             </div>
             
-            {listing.avgRating && (
+            {listing.avgRating && listing.avgRating > 0 ? (
               <RatingBadge 
                 rating={listing.avgRating * 2} // Converting 5-star to 10-point scale for Booking feel
                 count={listing.reviewCount} 
               />
+            ) : (
+              <span className="text-[10px] text-gray-400 bg-gray-50 px-2 py-1 rounded-full border border-gray-100 font-medium whitespace-nowrap">No reviews yet</span>
             )}
           </div>
 
@@ -246,12 +249,14 @@ export default function ListingCard({ listing, variant = 'grid' }: ListingCardPr
               {listing.title}
             </h3>
           </Link>
-          {listing.avgRating && (
+          {listing.avgRating && listing.avgRating > 0 ? (
             <RatingBadge 
               rating={listing.avgRating * 2} 
               size="sm" 
               showLabel={false} 
             />
+          ) : (
+            <span className="text-[10px] text-gray-400 bg-gray-50 px-2 py-1 rounded-full border border-gray-100 font-medium whitespace-nowrap">New</span>
           )}
         </div>
 

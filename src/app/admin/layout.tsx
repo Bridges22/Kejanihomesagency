@@ -14,7 +14,8 @@ import {
   Search,
   Bell,
   Activity,
-  MessageSquare
+  MessageSquare,
+  Calendar
 } from 'lucide-react';
 import AppLogo from '@/components/ui/AppLogo';
 import { Toaster } from 'sonner';
@@ -94,6 +95,8 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
   const navItems = [
     { label: 'Overview', href: '/admin', icon: LayoutDashboard },
     { label: 'All Listings', href: '/admin/listings', icon: Home },
+    { label: 'Listing Approvals', href: '/admin/moderation', icon: ShieldCheck },
+    { label: 'Property Bookings', href: '/admin/bookings', icon: Calendar },
     { label: 'Support Inbox', href: '/admin/messages', icon: MessageSquare },
     { label: 'Flagged Reports', href: '/admin/reports', icon: ShieldCheck },
     { label: 'System Audit', href: '/admin/audit', icon: Activity },

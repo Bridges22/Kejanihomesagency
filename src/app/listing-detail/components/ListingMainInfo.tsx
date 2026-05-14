@@ -48,7 +48,7 @@ export default function ListingMainInfo({ listing }: ListingMainInfoProps) {
   
   const price = isSale 
     ? (listing.total_price || listing.price)
-    : (isAirbnb ? (listing.pricePerNight || listing.price) : (listing.pricePerMonth || listing.price));
+    : (isAirbnb ? (listing.price_per_night || listing.price) : (listing.price_per_month || listing.price));
 
   const frequencyLabel = isSale 
     ? 'Total Price' 
@@ -112,17 +112,19 @@ export default function ListingMainInfo({ listing }: ListingMainInfoProps) {
           <div className="flex items-center gap-2 text-teal-600 text-sm font-semibold">
             <MapPin size={16} />
             <span className="underline decoration-teal-600/30 underline-offset-4 cursor-pointer hover:text-teal-700">
-              {listing.area}, {listing.city}, {listing.country}
+              {listing.area}, {listing.county || listing.city}, {listing.country}
             </span>
             <span className="text-gray-400 font-normal ml-1">• Show on map</span>
           </div>
           
-          {listing.avgRating && (
+          {listing.avgRating && listing.avgRating > 0 ? (
             <RatingBadge 
               rating={listing.avgRating * 2} 
               count={listing.reviewCount} 
               size="lg"
             />
+          ) : (
+            <span className="text-sm font-bold text-gray-400 uppercase tracking-widest bg-gray-50 px-3 py-1 rounded-full border border-gray-100">No reviews yet</span>
           )}
         </div>
       </div>

@@ -13,6 +13,9 @@ export default function StickyBookingSidebar({ listing }: StickyBookingSidebarPr
   const [checkIn, setCheckIn] = useState('');
   const [checkOut, setCheckOut] = useState('');
   const [guests, setGuests] = useState(1);
+  const [guestName, setGuestName] = useState('');
+  const [guestEmail, setGuestEmail] = useState('');
+  const [guestPhone, setGuestPhone] = useState('');
   const [booking, setBooking] = useState(false);
 
   // Always unlocked now as per new free-to-view policy
@@ -31,7 +34,7 @@ export default function StickyBookingSidebar({ listing }: StickyBookingSidebarPr
   const isRental = listing.category === 'Rental' || (listing.category === 'Commercial' && listing.listing_type_detailed === 'commercial_rent') || listing.listing_type === 'rental';
   const isAirbnb = !isSale && !isRental; // fallback
 
-  const nightlyRate = listing.price_per_night ?? listing.pricePerNight ?? listing.price ?? 0;
+  const nightlyRate = listing.price_per_night ?? listing.price ?? 0;
   const platformFee = Math.round(nightlyRate * nights * 0.1);
   const total = nightlyRate * nights + platformFee;
 
@@ -80,11 +83,37 @@ export default function StickyBookingSidebar({ listing }: StickyBookingSidebarPr
       toast.error('Please select check-in and check-out dates');
       return;
     }
+    if (!guestName || !guestPhone) {
+      toast.error('Please provide your name and phone number');
+      return;
+    }
+    
     setBooking(true);
-    // Backend integration point: POST /bookings
-    await new Promise((r) => setTimeout(r, 1600));
-    setBooking(false);
-    toast.success('Booking confirmed! Check your email for details.');
+    try {
+      const { bookingsService } = await import('@/services/bookingsService');
+      await bookingsService.createBooking({
+        listing_id: listing.id,
+        guest_name: guestName,
+        guest_email: guestEmail || 'Not provided',
+        guest_phone: guestPhone,
+        check_in_date: checkIn,
+        check_out_date: checkOut,
+        guests_count: guests,
+        price_per_night: nightlyRate,
+        total_amount: total
+      });
+      toast.success('Booking confirmed! The host has been notified.');
+      // Optional: reset form
+      setCheckIn('');
+      setCheckOut('');
+      setGuestName('');
+      setGuestEmail('');
+      setGuestPhone('');
+    } catch (err: any) {
+      toast.error(err.message || 'Failed to submit booking');
+    } finally {
+      setBooking(false);
+    }
   };
 
   if (checking) {
@@ -170,13 +199,17 @@ export default function StickyBookingSidebar({ listing }: StickyBookingSidebarPr
             </span>
             <span className="text-gray-400 text-sm font-semibold">/month</span>
           </div>
-          <div className="flex items-center gap-2">
-            <div className="bg-teal-600 text-white text-[10px] font-black px-1.5 py-0.5 rounded flex items-center justify-center tabular-nums">
-              {(listing.avgRating * 2).toFixed(1)}
+          {listing.avgRating && listing.avgRating > 0 ? (
+            <div className="flex items-center gap-2">
+              <div className="bg-teal-600 text-white text-[10px] font-black px-1.5 py-0.5 rounded flex items-center justify-center tabular-nums">
+                {(listing.avgRating * 2).toFixed(1)}
+              </div>
+              <span className="text-xs font-bold text-gray-900">Very Good</span>
+              <span className="text-xs text-gray-400">· {listing.reviewCount || listing.review_count || 0} reviews</span>
             </div>
-            <span className="text-xs font-bold text-gray-900">Very Good</span>
-            <span className="text-xs text-gray-400">· {listing.reviewCount || 0} reviews</span>
-          </div>
+          ) : (
+            <span className="text-xs font-bold text-gray-400 uppercase tracking-widest">No reviews yet</span>
+          )}
         </div>
 
         {/* Unlock Section */}
@@ -258,13 +291,17 @@ export default function StickyBookingSidebar({ listing }: StickyBookingSidebarPr
             </span>
             <span className="text-gray-400 text-sm font-semibold">/night</span>
           </div>
-          <div className="flex items-center gap-2">
-            <div className="bg-teal-600 text-white text-[10px] font-black px-1.5 py-0.5 rounded flex items-center justify-center tabular-nums">
-              {(listing.avgRating * 2).toFixed(1)}
+          {listing.avgRating && listing.avgRating > 0 ? (
+            <div className="flex items-center gap-2">
+              <div className="bg-teal-600 text-white text-[10px] font-black px-1.5 py-0.5 rounded flex items-center justify-center tabular-nums">
+                {(listing.avgRating * 2).toFixed(1)}
+              </div>
+              <span className="text-xs font-bold text-gray-900">Very Good</span>
+              <span className="text-xs text-gray-400">· {listing.reviewCount || listing.review_count || 0} reviews</span>
             </div>
-            <span className="text-xs font-bold text-gray-900">Very Good</span>
-            <span className="text-xs text-gray-400">· {listing.reviewCount || 0} reviews</span>
-          </div>
+          ) : (
+            <span className="text-xs font-bold text-gray-400 uppercase tracking-widest">No reviews yet</span>
+          )}
         </div>
 
       <div className="p-5 space-y-4">
@@ -304,14 +341,50 @@ export default function StickyBookingSidebar({ listing }: StickyBookingSidebarPr
               </button>
               <span className="font-semibold text-gray-800 w-4 text-center tabular-nums">{guests}</span>
               <button
-                onClick={() => setGuests(Math.min(listing.maxGuests, guests + 1))}
+                onClick={() => setGuests(Math.min(listing.max_guests || listing.maxGuests || 1, guests + 1))}
                 className="w-7 h-7 rounded-full border border-gray-300 flex items-center justify-center text-gray-600 hover:border-teal-400 hover:text-teal-600 transition-colors text-lg leading-none"
               >
                 +
               </button>
             </div>
           </div>
-          <p className="text-xs text-gray-400 mt-1">Max {listing.maxGuests} guests</p>
+          <p className="text-xs text-gray-400 mt-1">Max {listing.max_guests || listing.maxGuests || 1} guests</p>
+        </div>
+
+        {/* Contact details */}
+        <div className="space-y-3 pt-3 border-t border-gray-100">
+          <div>
+            <label className="text-xs font-semibold text-gray-500 uppercase tracking-wide block mb-1.5">Guest Name</label>
+            <input
+              type="text"
+              placeholder="Your full name"
+              value={guestName}
+              onChange={(e) => setGuestName(e.target.value)}
+              className="input-field text-sm py-2.5 w-full border border-gray-200 rounded-xl px-4 focus:ring-2 focus:ring-teal-500/20 focus:border-teal-500 outline-none transition-all"
+            />
+          </div>
+          <div className="grid grid-cols-2 gap-2">
+            <div>
+              <label className="text-xs font-semibold text-gray-500 uppercase tracking-wide block mb-1.5">Phone</label>
+              <input
+                type="tel"
+                placeholder="07XX..."
+                value={guestPhone}
+                onChange={(e) => setGuestPhone(e.target.value)}
+                className="input-field text-sm py-2.5 w-full border border-gray-200 rounded-xl px-4 focus:ring-2 focus:ring-teal-500/20 focus:border-teal-500 outline-none transition-all"
+              />
+            </div>
+            <div>
+              <label className="text-xs font-semibold text-gray-500 uppercase tracking-wide block mb-1.5">Email</label>
+              <input
+                type="email"
+                placeholder="Optional"
+                value={guestEmail}
+                onChange={(e) => setGuestEmail(e.target.value)}
+                className="input-field text-sm py-2.5 w-full border border-gray-200 rounded-xl px-4 focus:ring-2 focus:ring-teal-500/20 focus:border-teal-500 outline-none transition-all"
+              />
+            </div>
+          </div>
         </div>
 
         {/* Price breakdown */}

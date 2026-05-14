@@ -58,7 +58,7 @@ export const listingsService = {
         amenity:amenities (*)
       ),
       photos:listing_photos!listing_id (*)
-    `);
+    `).eq('approval_status', 'approved');
 
     if (error) {
       console.warn('RPC search_listings failed:', error);
@@ -76,7 +76,8 @@ export const listingsService = {
           ),
           photos:listing_photos!listing_id (*)
         `)
-        .eq('status', 'active');
+        .eq('status', 'active')
+        .eq('approval_status', 'approved');
         
       if (filters.city && filters.city !== 'all') {
         const citySlug = filters.city.toLowerCase();

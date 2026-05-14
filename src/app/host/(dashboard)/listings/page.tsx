@@ -127,11 +127,15 @@ export default function ListingsManagerPage() {
                   
                   <td className="px-6 py-4">
                     <span className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-[10px] font-black uppercase tracking-wider ${
-                      listing.status === 'active' 
+                      listing.approval_status === 'approved' 
                         ? 'bg-teal-50 text-teal-700' 
-                        : 'bg-amber-50 text-amber-700'
+                        : listing.approval_status === 'rejected'
+                        ? 'bg-rose-50 text-rose-600'
+                        : listing.approval_status === 'changes_requested'
+                        ? 'bg-amber-50 text-amber-600'
+                        : 'bg-slate-50 text-slate-500'
                     }`}>
-                      {listing.status}
+                      {listing.approval_status?.replace('_', ' ') || listing.status}
                     </span>
                   </td>
                   
