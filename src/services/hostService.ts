@@ -210,6 +210,7 @@ export const hostService = {
         check_out_time: listingData.check_out_time,
         land_size: safeNum(listingData.land_size),
         property_size: safeNum(listingData.property_size),
+        floor_area: safeNum(listingData.floor_area),
         parking_details: listingData.parking_details,
         utilities_details: listingData.utilities_details,
         
@@ -230,7 +231,7 @@ export const hostService = {
         
         amenities_config: listingData.amenities_config || {},
         images: photoUrls, // Send photos directly to the 'images' column too
-        status: 'pending'
+        status: 'active'
       })
       .select()
       .single();
@@ -340,6 +341,7 @@ export const hostService = {
         check_out_time: listingData.check_out_time,
         land_size: safeNum(listingData.land_size),
         property_size: safeNum(listingData.property_size),
+        floor_area: safeNum(listingData.floor_area),
         parking_details: listingData.parking_details,
         utilities_details: listingData.utilities_details,
         has_title_deed: listingData.has_title_deed,
