@@ -148,9 +148,7 @@ export const hostService = {
     };
 
     // 2. Insert Listing with ALL FIELDS
-    const { data: listing, error: listingError } = await supabase
-      .from('listings')
-      .insert({
+    const insertPayload = {
         id: listingId,
         host_id: user.id,
         slug: slug,
@@ -232,7 +230,13 @@ export const hostService = {
         amenities_config: listingData.amenities_config || {},
         images: photoUrls, // Send photos directly to the 'images' column too
         status: 'active'
-      })
+    };
+
+    console.log("EXACT FINAL PAYLOAD FOR INSERT:", insertPayload);
+
+    const { data: listing, error: listingError } = await supabase
+      .from('listings')
+      .insert(insertPayload)
       .select()
       .single();
 
